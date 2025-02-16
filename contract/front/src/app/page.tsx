@@ -42,7 +42,7 @@ export default function Home() {
 
   const checkIfWalletIsConnected = async () => {
     /* window.ethereumにアクセスできることを確認 */
-    const { ethereum } = window as any;
+    const { ethereum } = window as unknown as { ethereum?: any };
     if (!ethereum) {
       console.log("Make sure you have MetaMask!");
     } else {
@@ -63,7 +63,7 @@ export default function Home() {
 
   const connectWallet = async () => {
     try {
-      const { ethereum } = window as any;
+      const { ethereum } = window as unknown as { ethereum?: any };
       if (!ethereum) {
         alert("Get MetaMask!");
         return;
@@ -81,7 +81,7 @@ export default function Home() {
 
   const writeEcho = async () => {
     try {
-      const { ethereum } = window as any;
+      const { ethereum } = window as unknown as { ethereum?: any };
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
         const signer = await provider.getSigner();
@@ -112,7 +112,7 @@ export default function Home() {
   };
 
   const getLatestEcho = async () => {
-    const { ethereum } = window as any;
+    const { ethereum } = window as unknown as { ethereum?: any };
     try {
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
