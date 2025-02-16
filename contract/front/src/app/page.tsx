@@ -170,7 +170,7 @@ export default function Home() {
         ethEchoContract.on("NewEcho", onNewEcho);
       }
 
-      /* メモリリークを防ぐために、NewEchoのイベントを解除する */
+      /* メモリリークを防ぐ */
       return () => {
         if (ethEchoContract) {
           ethEchoContract.off("NewEcho", onNewEcho);
@@ -189,7 +189,8 @@ export default function Home() {
           EthEcho🏔️
         </h1>
         <div className="bio mt-2 mb-8">
-          イーサリアムウォレットを接続して、メッセージを作成。あなたのメッセージをチェーンに響かせましょう！
+          Ethereumにメッセージを書き込む体験ができます。<br></br>
+          (Metamaskが必要です。)
         </div>
       </div>
 
