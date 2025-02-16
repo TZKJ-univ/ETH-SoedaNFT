@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat test"
+    "run:script": "npx hardhat run scripts/run.ts",
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:localhost": "npx hardhat run scripts/deploy.ts --network localhost",
+    "start": "npx hardhat node"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "hardhat": "^2.22.18"
   },
   "devDependencies": {
