@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import LoadingBanner from "./Loadingbanner";
 import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
 
-/* ABIファイルを含むEthEcho.jsonファイルをインポートする */
 import abi from "./utils/EthEcho.json";
 
 interface Echo {
@@ -12,11 +12,9 @@ interface Echo {
   message: string;
 }
 
-/* ボタンのスタイルをまとめた変数 */
 const buttonStyle =
   "flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 
-/* 履歴の詳細を表示するコンポーネント */
 interface EchoDetailsProps {
   title: string;
   value: string;
@@ -32,28 +30,22 @@ const EchoDetails: React.FC<EchoDetailsProps> = ({ title, value }) => (
 );
 
 export default function Home() {
-  /* ユーザーのパブリックウォレットを保存するために使用する状態変数 */
   const [currentAccount, setCurrentAccount] = useState<string>("");
   console.log("currentAccount: ", currentAccount);
-  /* ユーザーのメッセージを保存するために使用する状態変数 */
   const [messageValue, setMessageValue] = useState<string>("");
   const [latestEcho, setLatestEcho] = useState<Echo | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
 
-  /* デプロイされたコントラクトのアドレスを保持する変数 */
   const contractAddress = "0x798FA01353b630753E1ecd429E57dFD0af32d071";
-  /* ABIの内容を参照する変数 */
   const contractABI = abi.abi;
 
   const checkIfWalletIsConnected = async () => {
-    /* window.ethereumにアクセスできることを確認する */
-    /* 'ethereum' プロパティの型情報がないため any を使用する */
     const { ethereum } = window as any;
     if (!ethereum) {
       console.log("Make sure you have MetaMask!");
     } else {
       console.log("We have the ethereum object", ethereum);
     }
-    /* ユーザーのウォレットへのアクセスが許可されているか確認する */
     const accounts = await ethereum.request({ method: "eth_accounts" });
     if (accounts.length !== 0) {
       const account = accounts[0];
@@ -66,14 +58,11 @@ export default function Home() {
 
   const connectWallet = async () => {
     try {
-      /* ユーザーが認証可能なウォレットアドレスを持っているか確認する */
       const { ethereum } = window as any;
       if (!ethereum) {
         alert("Get MetaMask!");
         return;
       }
-      /* 持っている場合は、ユーザーに対してウォレットへのアクセス許可を求める
-       * 許可されれば、ユーザーの最初のウォレットアドレスを currentAccount に格納する */
       const accounts = (await ethereum.request({
         method: "eth_requestAccounts",
       })) as string[];
@@ -84,14 +73,12 @@ export default function Home() {
     }
   };
 
-  /* ABIを読み込み、コントラクトにEchoを書き込む */
   const writeEcho = async () => {
     try {
       const { ethereum } = window as any;
       if (ethereum) {
         const provider = new ethers.BrowserProvider(ethereum);
         const signer = await provider.getSigner();
-        /* ABIを参照する */
         const ethEchoContract = new ethers.Contract(
           contractAddress,
           contractABI,
@@ -99,15 +86,16 @@ export default function Home() {
         );
         let count = await ethEchoContract.getTotalEchoes();
         console.log("Retrieved total echo count...", Number(count));
-        /* コントラクトにEchoを書き込む */
         const echoTxn = await ethEchoContract.writeEcho(messageValue, {
           gasLimit: 300000,
         });
+        setIsLoading(true);
         console.log("Mining...", echoTxn.hash);
         await echoTxn.wait();
         console.log("Mined -- ", echoTxn.hash);
         count = await ethEchoContract.getTotalEchoes();
         console.log("Retrieved total echo count...", Number(count));
+        setIsLoading(false);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -128,17 +116,14 @@ export default function Home() {
           signer
         );
 
-        /* コントラクトからgetLatestEchoメソッドを呼び出す */
         const echo = await ethEchoContract.getLatestEcho();
 
-        /* UIに必要なのは、アドレス、タイムスタンプ、メッセージだけなので、以下のように設定する */
         const newLatestEcho: Echo = {
           address: echo.echoer,
           timestamp: new Date(Number(echo.timestamp) * 1000),
           message: echo.message,
         };
 
-        /* React Stateにデータを格納する */
         setLatestEcho(newLatestEcho);
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -157,7 +142,6 @@ export default function Home() {
         console.log("NewEcho", from, timestamp, message);
       };
 
-      /* NewEchoイベントがコントラクトから発信されたときに、情報を受け取る */
       if ((window as any).ethereum) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
         const signer = await provider.getSigner();
@@ -170,7 +154,6 @@ export default function Home() {
         ethEchoContract.on("NewEcho", onNewEcho);
       }
 
-      /* メモリリークを防ぐ */
       return () => {
         if (ethEchoContract) {
           ethEchoContract.off("NewEcho", onNewEcho);
@@ -186,13 +169,14 @@ export default function Home() {
       {/* ヘッダー */}
       <div className="sm:mx-auto sm:w-full sm:max-w-lg">
         <h1 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white-900">
-          EthEcho🏔️
+          EthEcho💬
         </h1>
         <div className="bio mt-2 mb-8">
           Ethereumにメッセージを書き込む体験ができます。<br></br>
-          (Metamaskが必要です。)
+          (Metamask & SepoliaETHが必要です。)
         </div>
       </div>
+      {isLoading && <LoadingBanner />}
 
       <div className="sm:mx-auto sm:w-full sm:max-w-lg space-y-6">
         <div>
@@ -235,7 +219,7 @@ export default function Home() {
             className={`${buttonStyle} bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600`}
             onClick={writeEcho}
           >
-            Echo🏔️
+            Echo💬
           </button>
         )}
         {/* 最新の書き込みを読み込むボタン */}
@@ -244,7 +228,7 @@ export default function Home() {
             className={`${buttonStyle} bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600 mt-6`}
             onClick={getLatestEcho}
           >
-            Load Latest Echo🏔️
+            Load Latest Echo💬
           </button>
         )}
         {/* 履歴を表示する */}
@@ -253,7 +237,7 @@ export default function Home() {
             <div>
               <EchoDetails title="Address" value={latestEcho.address} />
               <EchoDetails
-                title="Time🦴🐕💨"
+                title="Timestamp"
                 value={latestEcho.timestamp.toString()}
               />
               <EchoDetails title="Message" value={latestEcho.message} />

@@ -1,0 +1,48 @@
+.loading-banner {
+    position: fixed;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .loading-banner-text {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .blocks-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .loading-banner .block {
+    background-color: #3498db;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+  }
+  
+  /* チェーンのスタイル（シンプルな横線） */
+  .chain {
+    width: 20px;
+    height: 2px;
+    background-color: #fff;
+    /* アニメーションなど追加する場合はここに記述 */
+    margin: 0 5px;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
