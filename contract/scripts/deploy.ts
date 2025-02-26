@@ -12,6 +12,10 @@ const main = async () => {
     const deployedContractAddress = await ethEcho.getAddress();
     console.log("Contract deployed to: ", deployedContractAddress);
     console.log("Contract deployed by: ", deployer.address);
+
+    let txn = await ethEcho.makeAnEchoNFT();
+    const receipt = await txn.wait();
+    console.log("Echo NFT minted!");
 };
 
 const runMain = async () => {
