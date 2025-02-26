@@ -57,7 +57,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [txHash, setTxhash] = useState<string | null>(null);
 
-  const contractAddress = "0x798FA01353b630753E1ecd429E57dFD0af32d071";
+  const contractAddress = "0x211a6c2EBB0903Ae4e4fA129220D75D8472073EF";
   const contractABI = abi.abi;
 
   const checkIfWalletIsConnected = async () => {
@@ -94,6 +94,30 @@ export default function Home() {
     }
   };
 
+  const makeAnEchoNFT = async () => {
+    try {
+      const { ethereum } = window as any;
+      if (ethereum) {
+        const provider = new ethers.BrowserProvider(ethereum);
+        const signer = await provider.getSigner();
+        const ethEchoContract = new ethers.Contract(
+          contractAddress,
+          contractABI,
+          signer
+        );
+        const echoTxn = await ethEchoContract.makeAnEchoNFT();
+        console.log("Mining...", echoTxn.hash);
+        await echoTxn.wait();
+        console.log("Mined -- ", echoTxn.hash);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
   const writeEcho = async () => {
     try {
       const { ethereum } = window as any;
@@ -108,7 +132,7 @@ export default function Home() {
         let count = await ethEchoContract.getTotalEchoes();
         console.log("Retrieved total echo count...", Number(count));
         const echoTxn = await ethEchoContract.writeEcho(messageValue, {
-          gasLimit: 300000,
+          gasLimit: 600000,
         });
         setIsLoading(true);
         console.log("Mining...", echoTxn.hash);
@@ -248,6 +272,15 @@ export default function Home() {
             onClick={writeEcho}
           >
             Echo💬
+          </button>
+        )}
+        {/* NFTを作成するボタン */}
+        {currentAccount && (
+          <button
+            className={`${buttonStyle} bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600`}
+            onClick={makeAnEchoNFT}
+          >
+            Mint NFT🎨
           </button>
         )}
         {/* 最新の書き込みを読み込むボタン */}
