@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+import { formatDistanceToNow } from "date-fns";
+import { ja } from "date-fns/locale";
 import LoadingBanner from "./Loadingbanner";
 import { ethers } from "ethers";
 import React, { useState, useEffect } from "react";
@@ -20,21 +22,40 @@ interface EchoDetailsProps {
   value: string;
 }
 
-const EchoDetails: React.FC<EchoDetailsProps> = ({ title, value }) => (
-  <div className="py-3 px-4 block w-full border-gray-200 rounded-lg dark:bg-slate-900 dark:border-gray-700 dark:text-gray-100">
-    <div>
-      <p className="font-semibold">{title}</p>
-      <p>{value}</p>
+const EchoDetails: React.FC<EchoDetailsProps> = ({ title, value }) => {
+  const formattedValue =
+    title === "送信時間"
+      ? formatDistanceToNow(new Date(value), { addSuffix: true, locale: ja })
+      : value;
+
+  return (
+    <div className="py-3 px-4 block w-full border-gray-200 rounded-lg dark:bg-slate-900 dark:border-gray-700 dark:text-gray-100">
+      <div>
+        <p className="font-semibold">{title}</p>
+        {title === "トランザクションURL" ? (
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline break-words"
+          >
+            {value}
+          </a>
+        ) : (
+          <p className="break-words">{formattedValue}</p>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState<string>("");
   console.log("currentAccount: ", currentAccount);
   const [messageValue, setMessageValue] = useState<string>("");
   const [latestEcho, setLatestEcho] = useState<Echo | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [txHash, setTxhash] = useState<string | null>(null);
 
   const contractAddress = "0x798FA01353b630753E1ecd429E57dFD0af32d071";
   const contractABI = abi.abi;
@@ -91,6 +112,7 @@ export default function Home() {
         });
         setIsLoading(true);
         console.log("Mining...", echoTxn.hash);
+        setTxhash(echoTxn.hash);
         await echoTxn.wait();
         console.log("Mined -- ", echoTxn.hash);
         count = await ethEchoContract.getTotalEchoes();
@@ -235,12 +257,13 @@ export default function Home() {
         {isExistLogs && (
           <div className="py-3 px-4 block w-full border-gray-200 rounded-lg dark:bg-slate-900 dark:border-gray-700 dark:text-gray-100">
             <div>
-              <EchoDetails title="Address" value={latestEcho.address} />
+              <EchoDetails title="送信者" value={latestEcho.address} />
               <EchoDetails
-                title="Timestamp"
+                title="送信時間"
                 value={latestEcho.timestamp.toString()}
               />
-              <EchoDetails title="Message" value={latestEcho.message} />
+              <EchoDetails title="メッセージ" value={latestEcho.message} />
+              <EchoDetails title="トランザクションURL" value={`https://sepolia.etherscan.io/tx/${txHash}`} />
             </div>
           </div>
         )}
