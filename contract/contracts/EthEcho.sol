@@ -9,21 +9,14 @@ contract EthEcho {
     uint256 private _totalEchoes;
     event NewEcho(address indexed from, uint256 timestamp, string message);
 
-    /*
-     * ユーザが送信したEcho情報
-     */
     struct Echo {
         address echoer;
         string message;
         uint256 timestamp;
     }
 
-    /*
-     * ユーザが送信したlatestのEchoを保持
-     */
      Echo private _latestEcho;
 
-    // constructor: 初期化
     constructor() {
         console.log("Here is my second smart contract");
     }
