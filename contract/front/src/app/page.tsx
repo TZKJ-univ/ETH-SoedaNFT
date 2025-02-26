@@ -113,6 +113,7 @@ export default function Home() {
         setIsLoading(true);
         console.log("Mining...", echoTxn.hash);
         setTxhash(echoTxn.hash);
+        localStorage.setItem("txHash", echoTxn.hash);
         await echoTxn.wait();
         console.log("Mined -- ", echoTxn.hash);
         count = await ethEchoContract.getTotalEchoes();
@@ -163,6 +164,11 @@ export default function Home() {
       const onNewEcho = (from: string, timestamp: number, message: string) => {
         console.log("NewEcho", from, timestamp, message);
       };
+
+      const savedTxHash = localStorage.getItem("txHash");
+      if (savedTxHash) {
+        setTxhash(savedTxHash);
+      }
 
       if ((window as any).ethereum) {
         const provider = new ethers.BrowserProvider((window as any).ethereum);
