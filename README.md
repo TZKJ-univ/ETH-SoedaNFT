@@ -1,4 +1,4 @@
-# EthEcho 
+# Eth-SoedaNFT
 
 Sepolia testnet にコントラクトを通じてメッセージを書き込む体験・NFTを獲得する体験ができます。
 
