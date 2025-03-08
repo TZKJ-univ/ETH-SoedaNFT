@@ -224,7 +224,7 @@ export default function Home() {
           EthEcho💬
         </h1>
         <div className="bio mt-2 mb-8">
-          Ethereumにメッセージを書き込む体験ができます。<br></br>
+          Ethereumにメッセージを書き込む・NFTをMintする体験ができます。
           (Metamask & SepoliaETHが必要です。)
         </div>
       </div>
